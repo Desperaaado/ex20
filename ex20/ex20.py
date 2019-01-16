@@ -74,6 +74,12 @@ class BSTree(object):
     def show_list(self):
         print(self.list(self.root))
 
+    def find_min(self, node):
+        min_node = node
+        while node.left:
+            min_node = min_node.left
+        return min_node
+
     def delete(self, node, key):
         last_parent, node = self.find_last_parent_and_node(node, key)
         if not node:
@@ -81,6 +87,7 @@ class BSTree(object):
             return None
         elif not last_parent:
             result = self.root.value
+
             if (not node.left) and (not node.right):
                 return node.value
             elif (not node.left) and node.right:
@@ -94,10 +101,12 @@ class BSTree(object):
                 self.delete(node.left, node.left.key)
             else:
                 sys.exit(6)
+
             return result
 
         if (not node.left) and (not node.right):
-
+            result = node.value
+            
             if last_parent.left == node:
                 last_parent.left = None
             elif last_parent.right == node:
@@ -105,37 +114,26 @@ class BSTree(object):
             else:
                 sys.exit(5)
 
-            return node.value
         elif (not node.left) and node.right:
-            node.right.parent = last_parent
-
-            if last_parent.left == node:
-                last_parent.left = node.right
-            elif last_parent.right == node:
-                last_parent.right = node.right
-            else:
-                sys.exit(5)
-            
-            return node.value
+            result = node.value
+            successor = node.right
+            node.key, node.value = successor.key, successor.value
+            self.delete(successor, successor.key)
         elif node.left and (not node.right):
-            node.left.parent = last_parent
-
-            if last_parent.left == node:
-                last_parent.left = node.left
-            elif last_parent.right == node:
-                last_parent.right = node.left
-            else:
-                sys.exit(5)
-            
-            return node.value
+            result = node.value
+            successor = node.left
+            node.key, node.value = successor.key, successor.value
+            self.delete(successor, successor.key)
         elif node.left and node.right:
-            print('**************************')
-            result = node.key
-            node.key = node.left.key
-            self.delete(node.left, node.left.key)
-            return result
+            result = node.value
+            successor = self.find_min(node.right)
+            node.key, node.value = successor.key, successor.value
+            self.delete(successor, successor.key)
         else:
             sys.exit(6)
 
+        return result
+        
+
     def do_delete(self, key):
-        self.delete(self.root, key)
+        return self.delete(self.root, key)
